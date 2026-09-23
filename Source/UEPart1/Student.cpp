@@ -7,18 +7,15 @@ UStudent::UStudent()
 {
 	// 값 설정.
 	Name = TEXT("학생");
-	Year = 1;
-	Id = 1;
 }
 
 void UStudent::DoLesson()
 {
-	Super::DoLesson();
-
+	ILessonInterface::DoLesson();
 	UE_LOG(
 		LogTemp,
 		Log,
-		TEXT("%d학년 %d번 %s님이 수업을 듣습니다."),
-		Year, Id, *Name
+		TEXT("%s님이 수업을 수강합니다."),
+		*Name
 	);
 }

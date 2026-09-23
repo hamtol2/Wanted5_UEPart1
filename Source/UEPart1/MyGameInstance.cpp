@@ -4,6 +4,7 @@
 #include "MyGameInstance.h"
 #include "Student.h"
 #include "Teacher.h"
+#include "Staff.h"
 
 UMyGameInstance::UMyGameInstance()
 {
@@ -17,58 +18,56 @@ void UMyGameInstance::Init()
 	Super::Init();
 
 	UE_LOG(LogTemp, Log, TEXT("======================="));
-
-	// 클래스 정보 가져오기.
-	UClass* ClassRuntime = GetClass();
-	UClass* ClassCompile = UMyGameInstance::StaticClass();
-
-	// 두 정보가 같은지 비교(어서트 사용).
-	//check(ClassRuntime == ClassCompile);
-	//ensure(ClassRuntime == ClassCompile);
-
-	UE_LOG(
-		LogTemp,
-		Log,
-		TEXT("학교를 담당하는 클래스 이름: %s"),
-		*ClassRuntime->GetName()
-	);
-
-	SchoolName = TEXT("포텐업");
-
-	UE_LOG(LogTemp, Log, TEXT("학교 이름: %s"), *SchoolName);
-
-	UE_LOG(
-		LogTemp, 
-		Log, 
-		TEXT("학교 이름 기본 값: %s"), 
-		*GetClass()->GetDefaultObject<UMyGameInstance>()->SchoolName
-	);
-
-	UE_LOG(LogTemp, Log, TEXT("======================="));
-
-	// 학생/선생님 객체 생성.
-	UStudent* Student = NewObject<UStudent>();
-	UTeacher* Teacher = NewObject<UTeacher>();
-
-	// 학생 클래스의 Getter 사용.
-	Student->SetName(TEXT("학생1"));
-	UE_LOG(LogTemp, Log, TEXT("새로운 학생 이름: %s"), *Student->GetName());
-
-	// 언리얼의 리플렉션 시스템을 활용해서 프로퍼티 정보 가져오기.
-	FString CurrentTeacherName;
-	FProperty* NameProperty 
-		= UTeacher::StaticClass()->FindPropertyByName(TEXT("Name"));
-	if (NameProperty)
+	TArray<UPerson*> Persons =
 	{
-		// 이름 값 읽어오기.
-		NameProperty->GetValue_InContainer(Teacher, &CurrentTeacherName);
-		UE_LOG(LogTemp, Log, TEXT("현재 선생님 이름: %s"), *CurrentTeacherName);
+		NewObject<UStudent>(),
+		NewObject<UTeacher>(),
+		NewObject<UStaff>(),
+	};
 
-		// 새로운 이름 설정.
-		FString NewTeacherName(TEXT("장세윤"));
-		NameProperty->SetValue_InContainer(Teacher, &NewTeacherName);
-		UE_LOG(LogTemp, Log, TEXT("새로운 선생님 이름: %s"), *Teacher->GetName());
+	// 범위 기반 루프 활용 이름 출력.
+	for (const auto Person : Persons)
+	{
+		UE_LOG(
+			LogTemp,
+			Log,
+			TEXT("구성원 이름: %s"),
+			*Person->GetName()
+		);
 	}
+
+	// 인터페이스 구현 여부에 따른 수업 참여 구분.
+	// 구현 여부를 확인하는 방법? -> 해당 인터페이스로 형변환(다운 캐스팅).
+	// 다운 캐스팅.RTTI.
+	for (const auto Person : Persons)
+	{
+		// 형변환을 통한 인터페이스 구현 여부 확인.
+		ILessonInterface* LessonInterface
+			= Cast<ILessonInterface>(Person);
+
+		// 형변환에 성공했다면 구현한 경우.
+		if (LessonInterface)
+		{
+			UE_LOG(
+				LogTemp,
+				Log,
+				TEXT("%s님은 수업에 참여할 수 있습니다."),
+				*Person->GetName()
+			);
+			LessonInterface->DoLesson();
+		}
+		// 형변환에 실패해서 null이 반환됐다면 구현 안한 경우.
+		else
+		{
+			UE_LOG(
+				LogTemp,
+				Log,
+				TEXT("%s님은 수업에 참여할 수 없습니다."),
+				*Person->GetName()
+			);
+		}
+	}
+
 
 	UE_LOG(LogTemp, Log, TEXT("======================="));
 }

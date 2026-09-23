@@ -4,22 +4,20 @@
 
 #include "CoreMinimal.h"
 #include "Person.h"
+#include "LessonInterface.h"
 #include "Teacher.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class UEPART1_API UTeacher : public UPerson
+class UEPART1_API UTeacher : public UPerson, public ILessonInterface
 {
 	GENERATED_BODY()
 	
 public:
 	UTeacher();
 
-	virtual void DoLesson() override;
-
 private:
-	UPROPERTY()
-	int32 Id;
+	virtual void DoLesson() override;
 };
