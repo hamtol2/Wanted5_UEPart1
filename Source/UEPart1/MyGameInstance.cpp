@@ -5,6 +5,7 @@
 #include "Student.h"
 #include "Teacher.h"
 #include "Staff.h"
+#include "Card.h"
 
 UMyGameInstance::UMyGameInstance()
 {
@@ -68,6 +69,32 @@ void UMyGameInstance::Init()
 		}
 	}
 
+	// 구성원의 카드 타입 출력.
+	for (const auto Person : Persons)
+	{
+		const UCard* OwnCard = Person->GetCard();
+		ensure(OwnCard);
+
+		//OwnCard->GetCardType();
+
+		const UEnum* CardEnumType
+			= FindObject<UEnum>(nullptr, TEXT("/Script/UEPart1.ECardType"));
+		if (CardEnumType)
+		{
+			// GetDisplayNameTextByValue 함수는 FText를 반환함.
+			// FString으로 변환할 때는 ToString 함수 사용.
+			FString CardMetaData = CardEnumType->GetDisplayNameTextByValue(
+				(int64)OwnCard->GetCardType()).ToString();
+
+			UE_LOG(
+				LogTemp,
+				Log,
+				TEXT("%s님이 소유한 카드 종류: %s"),
+				*Person->GetName(),
+				*CardMetaData
+			);
+		}
+	}
 
 	UE_LOG(LogTemp, Log, TEXT("======================="));
 }
