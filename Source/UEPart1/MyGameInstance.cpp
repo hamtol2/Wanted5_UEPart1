@@ -2,6 +2,8 @@
 
 
 #include "MyGameInstance.h"
+#include "Student.h"
+#include "Teacher.h"
 
 UMyGameInstance::UMyGameInstance()
 {
@@ -41,6 +43,32 @@ void UMyGameInstance::Init()
 		TEXT("학교 이름 기본 값: %s"), 
 		*GetClass()->GetDefaultObject<UMyGameInstance>()->SchoolName
 	);
+
+	UE_LOG(LogTemp, Log, TEXT("======================="));
+
+	// 학생/선생님 객체 생성.
+	UStudent* Student = NewObject<UStudent>();
+	UTeacher* Teacher = NewObject<UTeacher>();
+
+	// 학생 클래스의 Getter 사용.
+	Student->SetName(TEXT("학생1"));
+	UE_LOG(LogTemp, Log, TEXT("새로운 학생 이름: %s"), *Student->GetName());
+
+	// 언리얼의 리플렉션 시스템을 활용해서 프로퍼티 정보 가져오기.
+	FString CurrentTeacherName;
+	FProperty* NameProperty 
+		= UTeacher::StaticClass()->FindPropertyByName(TEXT("Name"));
+	if (NameProperty)
+	{
+		// 이름 값 읽어오기.
+		NameProperty->GetValue_InContainer(Teacher, &CurrentTeacherName);
+		UE_LOG(LogTemp, Log, TEXT("현재 선생님 이름: %s"), *CurrentTeacherName);
+
+		// 새로운 이름 설정.
+		FString NewTeacherName(TEXT("장세윤"));
+		NameProperty->SetValue_InContainer(Teacher, &NewTeacherName);
+		UE_LOG(LogTemp, Log, TEXT("새로운 선생님 이름: %s"), *Teacher->GetName());
+	}
 
 	UE_LOG(LogTemp, Log, TEXT("======================="));
 }
