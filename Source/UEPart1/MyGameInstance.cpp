@@ -71,4 +71,18 @@ void UMyGameInstance::Init()
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("======================="));
+
+	// 함수 호출.
+	Student->DoLesson();
+
+	// 리플렉션을 통한 함수 호출.
+	UFunction* DoLessonFunction
+		= Teacher->GetClass()->FindFunctionByName(TEXT("DoLesson"));
+
+	if (DoLessonFunction)
+	{
+		Teacher->ProcessEvent(DoLessonFunction, nullptr);
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("======================="));
 }
