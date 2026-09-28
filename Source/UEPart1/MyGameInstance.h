@@ -23,6 +23,18 @@ struct FStudentData
 	{
 	}
 
+	// TSet에 구조체를 저장하기 위해 필요한 함수/연산자 구현.
+	bool operator==(const FStudentData& InOther) const
+	{
+		return Order == InOther.Order;
+	}
+
+	// 외부의 함수를 내부에 구현.
+	friend FORCEINLINE int32 GetTypeHash(const FStudentData& InStudentData)
+	{
+		return GetTypeHash(InStudentData.Order);
+	}
+
 	UPROPERTY()
 	FString Name;
 
@@ -53,4 +65,7 @@ private:
 	// TArray로 UObject 타입을 관리할 때는 UPROPERTY() 매크로 필수.
 	UPROPERTY()
 	TArray<TObjectPtr<class UStudent>> Students;
+
+	// 키/값을 쌍으로 맵 선언.
+	TMap<int32, FString> StudentsMap;
 };
