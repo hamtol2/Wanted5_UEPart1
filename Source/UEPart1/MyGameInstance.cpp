@@ -64,4 +64,28 @@ void UMyGameInstance::Init()
 	// 알고리즘을 활용한 합계 구하기.
 	int32 SumByAlgo = Algo::Accumulate(Int32Array, 0);
 	ensure(Sum == SumByAlgo);
+
+	// Set 활용.
+	TSet<int32> Int32Set;
+	Int32Set.Reserve(ArrayNum);
+
+	// 데이터 추가.
+	for (int32 Index = 1; Index <= ArrayNum; ++Index)
+	{
+		Int32Set.Add(Index);
+	}
+
+	// 제거.
+	Int32Set.Remove(2);
+	Int32Set.Remove(4);
+	Int32Set.Remove(6);
+	Int32Set.Remove(8);
+	Int32Set.Remove(10);
+
+	// 추가.
+	Int32Set.Add(2);
+	Int32Set.Add(4);
+	Int32Set.Add(6);
+	Int32Set.Add(8);
+	Int32Set.Add(10);
 }
