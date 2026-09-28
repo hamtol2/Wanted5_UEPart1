@@ -6,6 +6,30 @@
 #include "Engine/GameInstance.h"
 #include "MyGameInstance.generated.h"
 
+// 학생 데이터를 관리할 구조체 선언.
+USTRUCT()
+struct FStudentData
+{
+	GENERATED_BODY()
+
+	FStudentData()
+	{
+		Name = TEXT("홍길동");
+		Order = -1;
+	}
+
+	FStudentData(const FString& InName, int32 InOrder)
+		: Name(InName), Order(InOrder)
+	{
+	}
+
+	UPROPERTY()
+	FString Name;
+
+	UPROPERTY()
+	int32 Order;
+};
+
 /**
  * 
  */
@@ -23,10 +47,10 @@ private:
 	virtual void Init() override;
 
 private:
-	UPROPERTY()
-	FString SchoolName;
+	// 학생 데이터를 배열로 관리.
+	TArray<FStudentData> StudentsData;
 
-	// 학사 정보 발행 객체.
+	// TArray로 UObject 타입을 관리할 때는 UPROPERTY() 매크로 필수.
 	UPROPERTY()
-	TObjectPtr<class UCourseInfo> CourseInfo;
+	TArray<TObjectPtr<class UStudent>> Students;
 };
