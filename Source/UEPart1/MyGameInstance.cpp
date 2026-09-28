@@ -6,6 +6,7 @@
 #include "Teacher.h"
 #include "Staff.h"
 #include "Card.h"
+#include "CourseInfo.h"
 
 UMyGameInstance::UMyGameInstance()
 {
@@ -18,83 +19,37 @@ void UMyGameInstance::Init()
 {
 	Super::Init();
 
+	// 학사 정보 객체 생성.
+	CourseInfo = NewObject<UCourseInfo>(this);
+
 	UE_LOG(LogTemp, Log, TEXT("======================="));
-	TArray<UPerson*> Persons =
-	{
-		NewObject<UStudent>(),
-		NewObject<UTeacher>(),
-		NewObject<UStaff>(),
-	};
 
-	// 범위 기반 루프 활용 이름 출력.
-	for (const auto Person : Persons)
-	{
-		UE_LOG(
-			LogTemp,
-			Log,
-			TEXT("구성원 이름: %s"),
-			*Person->GetName()
-		);
-	}
+	// 3개의 학생 객체 생성.
+	UStudent* Student1 = NewObject<UStudent>();
+	Student1->SetName(TEXT("학생1"));
 
-	// 인터페이스 구현 여부에 따른 수업 참여 구분.
-	// 구현 여부를 확인하는 방법? -> 해당 인터페이스로 형변환(다운 캐스팅).
-	// 다운 캐스팅.RTTI.
-	for (const auto Person : Persons)
-	{
-		// 형변환을 통한 인터페이스 구현 여부 확인.
-		ILessonInterface* LessonInterface
-			= Cast<ILessonInterface>(Person);
+	UStudent* Student2 = NewObject<UStudent>();
+	Student2->SetName(TEXT("학생2"));
 
-		// 형변환에 성공했다면 구현한 경우.
-		if (LessonInterface)
-		{
-			UE_LOG(
-				LogTemp,
-				Log,
-				TEXT("%s님은 수업에 참여할 수 있습니다."),
-				*Person->GetName()
-			);
-			LessonInterface->DoLesson();
-		}
-		// 형변환에 실패해서 null이 반환됐다면 구현 안한 경우.
-		else
-		{
-			UE_LOG(
-				LogTemp,
-				Log,
-				TEXT("%s님은 수업에 참여할 수 없습니다."),
-				*Person->GetName()
-			);
-		}
-	}
+	UStudent* Student3 = NewObject<UStudent>();
+	Student3->SetName(TEXT("학생3"));
 
-	// 구성원의 카드 타입 출력.
-	for (const auto Person : Persons)
-	{
-		const UCard* OwnCard = Person->GetCard();
-		ensure(OwnCard);
+	// 교직원 객체 생성.
+	UStaff* Staff1 = NewObject<UStaff>();
 
-		//OwnCard->GetCardType();
+	// 학사 정보 객체와 학생 객체의 연결.
+	// 발생 주체와 구독 주체의 연결 (의존성을 피할 수 없는 부분).
+	// MyGameInstance는 일종의 관리자(Manager) 성격의 객체.
 
-		const UEnum* CardEnumType
-			= FindObject<UEnum>(nullptr, TEXT("/Script/UEPart1.ECardType"));
-		if (CardEnumType)
-		{
-			// GetDisplayNameTextByValue 함수는 FText를 반환함.
-			// FString으로 변환할 때는 ToString 함수 사용.
-			FString CardMetaData = CardEnumType->GetDisplayNameTextByValue(
-				(int64)OwnCard->GetCardType()).ToString();
+	// 구독 처리.
+	CourseInfo->OnChanged.AddUObject(Student1, &UStudent::GetNotification);
+	CourseInfo->OnChanged.AddUObject(Student2, &UStudent::GetNotification);
+	CourseInfo->OnChanged.AddUObject(Student3, &UStudent::GetNotification);
 
-			UE_LOG(
-				LogTemp,
-				Log,
-				TEXT("%s님이 소유한 카드 종류: %s"),
-				*Person->GetName(),
-				*CardMetaData
-			);
-		}
-	}
+	CourseInfo->OnChanged.AddUObject(Staff1, &UStaff::GetNotification);
+
+	// 새로운 학사 정보 발행.
+	CourseInfo->ChangeCourseInfo(SchoolName, TEXT("변경된 학사 정보"));
 
 	UE_LOG(LogTemp, Log, TEXT("======================="));
 }

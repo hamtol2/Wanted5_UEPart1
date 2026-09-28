@@ -1,4 +1,4 @@
-
+﻿
 
 #pragma once
 
@@ -16,4 +16,7 @@ class UEPART1_API UStaff : public UPerson
 
 public:
 	UStaff();
+
+	// 알림 메시지를 수신할 함수 선언.
+	void GetNotification(const FString& School, const FString& NewCourseInfo);
 };
