@@ -72,4 +72,8 @@ public:
 private:
 	// 게임 인스턴스 초기화 함수.
 	virtual void Init() override;
+
+private:
+	UPROPERTY()
+	TObjectPtr<class UStudent> StudentSrc;
 };
