@@ -23,5 +23,5 @@ public:
 	UStudent* GetStudent() const { return SafeStudent; }
 
 private:
-	UStudent* SafeStudent = nullptr;
+	TObjectPtr<UStudent> SafeStudent = nullptr;
 };
