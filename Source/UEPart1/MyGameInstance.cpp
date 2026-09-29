@@ -3,6 +3,7 @@
 
 #include "MyGameInstance.h"
 #include "Student.h"
+#include <JsonObjectConverter.h>
 
 
 UMyGameInstance::UMyGameInstance()
@@ -164,5 +165,74 @@ void UMyGameInstance::Init()
 				NewStudent->GetOrder()
 			);
 		}
+	}
+
+	// Json 직렬화.
+	{
+		// Object -> Json Object -> Json 문자열 -> 파일로 기록.
+
+		// 파일 이름.
+		const FString JsonDataFileName(TEXT("StudentJsonData.txt"));
+
+		// 경로.
+		FString JsonDataPath = FPaths::Combine(SavedPath, JsonDataFileName);
+
+		// 경로 정리.
+		FPaths::MakeStandardFilename(JsonDataPath);
+
+		//// JsonObject 공유 레퍼런스 객체 생성.
+		//TSharedRef<FJsonObject> JsonObject = MakeShared<FJsonObject>();
+		//
+		//// 언리얼 오브젝트 -> Json 오브젝트.
+		//FJsonObjectConverter::UStructToJsonObject(
+		//	StudentSrc->GetClass(),
+		//	StudentSrc,
+		//	JsonObject
+		//);
+		//
+		//// JsonObject -> Json 문자열.
+		//FString JsonString;
+		//TSharedRef<TJsonWriter<TCHAR>> JsonWriter
+		//	= TJsonWriterFactory<TCHAR>::Create(&JsonString);
+		//
+		//// 직렬화: JsonObject -> Json 문자열.
+		//if (FJsonSerializer::Serialize(JsonObject, JsonWriter))
+		//{
+		//	// Json 문자열 -> 파일로 기록.
+		//	FFileHelper::SaveStringToFile(JsonString, *JsonDataPath);
+		//}
+
+		// Json 역직렬화.
+		// 파일 로드 -> Json 문자열 -> Json Object -> Object.
+
+		// 1. 파일 로드 -> Json 문자열.
+		FString JsonInString;
+		FFileHelper::LoadFileToString(JsonInString, *JsonDataPath);
+
+		// 2. Json 문자열 -> Json Object.
+		TSharedRef<TJsonReader<TCHAR>> JsonReader 
+			= TJsonReaderFactory<TCHAR>::Create(JsonInString);
+
+		TSharedPtr<FJsonObject> JsonObject;
+		if (FJsonSerializer::Deserialize(JsonReader, JsonObject))
+		{
+			// 3. Json Object -> Object.
+			UStudent* JsonStudent = NewObject<UStudent>();
+			if (FJsonObjectConverter::JsonObjectToUStruct(
+				JsonObject.ToSharedRef(),
+				JsonStudent->GetClass(),
+				JsonStudent))
+			{
+				// Json으로부터 읽은 데이터 출력.
+				UE_LOG(
+					LogTemp,
+					Log,
+					TEXT("[JsonData] 이름: %s, 순번: %d"),
+					*JsonStudent->GetName(),
+					JsonStudent->GetOrder()
+				);
+			}
+		}
+
 	}
 }
