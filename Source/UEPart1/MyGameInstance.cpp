@@ -267,9 +267,9 @@ void UMyGameInstance::Init()
 	}
 
 	// 패키지 저장 및 로드.
-	SaveStudentPackage();
+	//SaveStudentPackage();
 	LoadStudentPackage();
-
+	LoadStudentObject();
 }
 
 void UMyGameInstance::SaveStudentPackage() const
@@ -316,4 +316,39 @@ void UMyGameInstance::SaveStudentPackage() const
 }
 
 void UMyGameInstance::LoadStudentPackage() const
-{}
+{
+	// 저장된 패키지 로드.
+	UPackage* StudentPackage = LoadPackage(nullptr, *PackageName, LOAD_None);
+	if (!StudentPackage)
+	{
+		UE_LOG(LogTemp, Log, TEXT("패키지를 찾지 못함"));
+		return;
+	}
+
+	// 완전히 로드 처리.
+	StudentPackage->FullyLoad();
+
+	// 애셋 - 대표 언리얼 오브젝트 로드.
+	UStudent* TopStudent = FindObject<UStudent>(StudentPackage, *AssetName);
+	if (TopStudent)
+	{
+		PrintStudentInfo(TopStudent, TEXT("FindObject Asset"));
+	}
+	
+}
+
+void UMyGameInstance::LoadStudentObject() const
+{
+	// 패키지를 로드해두지 않은 상태에서 경로 값을 활용해 언리얼 오브젝트 로드.
+	const FString TopSoftObjectPath
+		= FString::Printf(TEXT("%s.%s"), *PackageName, *AssetName);
+
+	// 오브젝트 로드.
+	UStudent* TopStudent = LoadObject<UStudent>(nullptr, *TopSoftObjectPath);
+
+	// 로드 성공 시 로그 출력.
+	if (TopStudent)
+	{
+		PrintStudentInfo(TopStudent, TEXT("LoadObject Asset"));
+	}
+}

@@ -76,6 +76,7 @@ private:
 	// 패키지 저장/로드 함수.
 	void SaveStudentPackage() const;
 	void LoadStudentPackage() const;
+	void LoadStudentObject() const;
 
 private:
 
