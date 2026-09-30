@@ -73,7 +73,17 @@ private:
 	// 게임 인스턴스 초기화 함수.
 	virtual void Init() override;
 
+	// 패키지 저장/로드 함수.
+	void SaveStudentPackage() const;
+	void LoadStudentPackage() const;
+
 private:
+
+	// 패키지 저장에 필요한 이름 값.
+	// /Game: 프로젝트 경로/Content/
+	inline static const FString PackageName = TEXT("/Game/Student");
+	inline static const FString AssetName = TEXT("TopStudent");
+
 	UPROPERTY()
 	TObjectPtr<class UStudent> StudentSrc;
 };

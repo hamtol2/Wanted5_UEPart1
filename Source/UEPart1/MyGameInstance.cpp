@@ -4,10 +4,40 @@
 #include "MyGameInstance.h"
 #include "Student.h"
 #include <JsonObjectConverter.h>
+#include <UObject/SavePackage.h>
 
+// Student 정보 출력 함수.
+void PrintStudentInfo(const UStudent* InStudent, const FString& InTag)
+{
+	// 출력.
+	UE_LOG(
+		LogTemp,
+		Log,
+		TEXT("[%s] 이름: %s, 순번: %d"),
+		*InTag,
+		*InStudent->GetName(),
+		InStudent->GetOrder()
+	);
+}
 
 UMyGameInstance::UMyGameInstance()
-{}
+{
+	// 오브젝트 경로 만들기.
+	// 오브젝트 경로(ObjectPath): 패키지경로.애셋이름.
+	const FString TopSoftObjectPath
+		= FString::Printf(TEXT("%s.%s"), *PackageName, *AssetName);
+
+	// 로드.
+	static ConstructorHelpers::FObjectFinder<UStudent> UASSET_TopStudent(
+		*TopSoftObjectPath
+	);
+
+	// 로드 성공 시 로그 출력.
+	if (UASSET_TopStudent.Succeeded())
+	{
+		PrintStudentInfo(UASSET_TopStudent.Object, TEXT("Constructor"));
+	}
+}
 
 void UMyGameInstance::Init()
 {
@@ -235,4 +265,55 @@ void UMyGameInstance::Init()
 		}
 
 	}
+
+	// 패키지 저장 및 로드.
+	SaveStudentPackage();
+	LoadStudentPackage();
+
 }
+
+void UMyGameInstance::SaveStudentPackage() const
+{
+	// 패키지 생성.
+	// 패키지 생성할 때 플래그 지정해야함.
+	UPackage* StudentPackage = CreatePackage(*PackageName);
+	EObjectFlags ObjectFlag = RF_Public | RF_Standalone;
+
+	// 패키지 안에 저장할 언리얼 오브젝트 생성.
+	UStudent* TopStudent = NewObject<UStudent>(
+		StudentPackage, 
+		UStudent::StaticClass(),
+		*AssetName,
+		ObjectFlag
+	);
+
+	// 속성 설정.
+	TopStudent->SetName(TEXT("장세윤"));
+	TopStudent->SetOrder(10000);
+
+	// 패키지 저장.
+	// 파일 경로 만들기.
+	FString PackageFileName = FPackageName::LongPackageNameToFilename(
+		PackageName, 
+		FPackageName::GetAssetPackageExtension()
+	);
+
+	// 경로 값 정리.
+	FPaths::MakeStandardFilename(PackageFileName);
+
+	// 저장.
+	FSavePackageArgs SaveArgs;
+	SaveArgs.TopLevelFlags = ObjectFlag;
+	//UPackage::SavePackage(StudentPackage, TopStudent, *PackageFileName, SaveArgs)
+	if (UPackage::SavePackage(StudentPackage, nullptr, *PackageFileName, SaveArgs))
+	{
+		UE_LOG(
+			LogTemp,
+			Log,
+			TEXT("패키지가 성공적으로 저장됨.")
+		);
+	}
+}
+
+void UMyGameInstance::LoadStudentPackage() const
+{}
